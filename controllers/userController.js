@@ -3,6 +3,7 @@ const ApiError = require('../error/ApiError')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const {compareSync} = require('bcrypt')
+const axios = require("axios")
 
 const generateJwt = (id, email, role) => {
     return jwt.sign(
@@ -15,9 +16,9 @@ const generateJwt = (id, email, role) => {
 class UserController {
     async registration(req, res, next) {
         try {
-            const {email, password, role, firstName, middleName, lastName, birthDate, profession, organization} = req.body
+            const {email, password, role, firstName, middleName, lastName, birthDate, profession, organization, groupId} = req.body
 
-            if (!firstName || !middleName || !lastName || !birthDate || !(profession || organization))
+            if (!firstName || !middleName || !lastName || !birthDate || !(profession || organization) || !groupId)
                 return next(ApiError.badRequest("Не были переданы необходимые данные!"))
 
             if (!email || !password) return next(ApiError.badRequest("Некорректный email или пароль!"))
@@ -40,7 +41,8 @@ class UserController {
                         middleName,
                         lastName,
                         birthDate,
-                        profession
+                        profession,
+                        organization
                     })
                     break
                 case "WORKER":
@@ -60,6 +62,18 @@ class UserController {
             }
 
             if (!user) return next(ApiError.internal("Что-то пошло не так!"))
+
+            if (role === "STUDENT") {
+                // При деплое поменять http на https
+                await axios.post(
+                    `http://${process.env.REMOTE_SCHEDULE_HOST}:${process.env.REMOTE_SCHEDULE_PORT}/api/student/`,
+                    {
+                        id: user.id,
+                        fullName: `${firstName} ${middleName} ${lastName}`,
+                        groupId
+                    }
+                )
+            }
 
             const token = generateJwt(user.id, user.email, user.role)
 
@@ -102,6 +116,34 @@ class UserController {
             if (!token) return next(ApiError.internal("Непредвиденная ошибка с токеном!"))
 
             return res.json({token})
+        } catch (e) {
+            next(ApiError.internal(e.message))
+        }
+    }
+
+    async getUserByEmail(req, res, next) {
+        try {
+            const {email} = req.query
+
+            if (!email) return next(ApiError.badRequest("Не был передан email!"))
+
+            const user = await User.findOne({where: {email}})
+
+            if (!user) return next(ApiError.notFound("Такого пользователя не существует"))
+
+            return res.json(user)
+        } catch (e) {
+            next(ApiError.internal(e.message))
+        }
+    }
+
+    async getAll(req, res, next) {
+        try {
+            const users = await User.findAll()
+
+            if (!users) return next(ApiError.notFound("Пользователи не найдены!"))
+
+            return res.json(users)
         } catch (e) {
             next(ApiError.internal(e.message))
         }
