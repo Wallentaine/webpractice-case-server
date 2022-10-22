@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const {compareSync} = require('bcrypt')
 const axios = require("axios")
+const uuid = require("uuid")
+const path = require("path");
 
 const generateJwt = (id, email, role) => {
     return jwt.sign(
@@ -116,6 +118,30 @@ class UserController {
             if (!token) return next(ApiError.internal("Непредвиденная ошибка с токеном!"))
 
             return res.json({token})
+        } catch (e) {
+            next(ApiError.internal(e.message))
+        }
+    }
+
+    async addImage(req, res, next) {
+        try {
+            const {id} = req.body
+
+            if (!id) return next(ApiError.badRequest("Не был передан id"))
+
+            const {img} = req.files
+
+            if (!img) return next(ApiError.badRequest("Картинка не была передана!"))
+
+            let fileName = uuid.v4() + ".jpg"
+
+            await img.mv(path.resolve(__dirname, '..', 'static', fileName))
+
+            const user = await User.update({img})
+
+            if (!user) return next(ApiError.internal("Что-то пошло не так!"))
+
+            return res.json({message: "OK"})
         } catch (e) {
             next(ApiError.internal(e.message))
         }

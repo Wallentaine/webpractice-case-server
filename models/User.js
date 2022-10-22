@@ -11,7 +11,8 @@ const User = sequelize.define('user', {
     lastName: {type: DataTypes.STRING, allowNull: false},
     birthDate: {type: DataTypes.DATE, allowNull: false},
     profession: {type: DataTypes.STRING, defaultValue: ""},
-    organization: {type: DataTypes.STRING, defaultValue: ""}
+    organization: {type: DataTypes.STRING, defaultValue: ""},
+    img: {type: DataTypes.STRING, allowNull: true, defaultValue: null}
 })
 
 module.exports = {
