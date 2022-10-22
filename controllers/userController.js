@@ -66,9 +66,10 @@ class UserController {
             if (!user) return next(ApiError.internal("Что-то пошло не так!"))
 
             if (role === "STUDENT") {
+                //https://${process.env.REMOTE_SCHEDULE_HOST}:${process.env.REMOTE_SCHEDULE_PORT}/api/student/`
                 // При деплое поменять http на https
                 await axios.post(
-                    `http://${process.env.REMOTE_SCHEDULE_HOST}:${process.env.REMOTE_SCHEDULE_PORT}/api/student/`,
+                    `https://${process.env.REMOTE_SCHEDULE_HOST}/api/student/`,
                     {
                         id: user.id,
                         fullName: `${firstName} ${middleName} ${lastName}`,
