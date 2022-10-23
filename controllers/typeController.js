@@ -12,7 +12,7 @@ class TypeController {
 
             if (exist) return next(ApiError.badRequest("Этот тип уже существует!"))
 
-            const type = await Type.create({name})
+            const type = await Type.create({title})
 
             if (!type) next(ApiError.internal("Что-то пошло не так!"))
 
