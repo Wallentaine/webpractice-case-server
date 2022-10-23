@@ -37,7 +37,20 @@ class UserController {
             let user
 
             switch (role) {
-                case "STUDENT" || "TEACHER":
+                case "STUDENT":
+                    user = await User.create({
+                        email,
+                        password: hashPassword,
+                        role,
+                        firstName,
+                        middleName,
+                        lastName,
+                        birthDate,
+                        profession,
+                        organization
+                    })
+                    break
+                case "TEACHER":
                     user = await User.create({
                         email,
                         password: hashPassword,
