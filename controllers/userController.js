@@ -62,6 +62,18 @@ class UserController {
                         organization
                     })
                     break
+                case "ADMIN":
+                    user = await User.create({
+                        email,
+                        password: hashPassword,
+                        role,
+                        firstName,
+                        middleName,
+                        lastName,
+                        birthDate,
+                        organization
+                    })
+                    break
                 default:
                     break
             }
