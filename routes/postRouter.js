@@ -3,7 +3,7 @@ const router = new Router()
 const postController = require('../controllers/postController')
 const checkRoleMiddleware = require('../middleware/checkRoleMiddleware')
 
-router.post('/', postController.create)
+router.post('/', checkRoleMiddleware("WORKER"), postController.create)
 router.get('/latest/', postController.getLatestPosts)
 router.get('/:id', postController.getOne)
 router.get('/', postController.getAll)
