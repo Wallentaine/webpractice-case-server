@@ -20,7 +20,10 @@ class UserController {
         try {
             const {email, password, role, firstName, middleName, lastName, birthDate, profession, organization, groupId} = req.body
 
-            if (!firstName || !middleName || !lastName || !birthDate || !(profession || organization) || !groupId)
+            if (!firstName || !middleName || !lastName || !birthDate || !(profession || organization))
+                return next(ApiError.badRequest("Не были переданы необходимые данные!"))
+
+            if (role === "STUDENT" && !groupId)
                 return next(ApiError.badRequest("Не были переданы необходимые данные!"))
 
             if (!email || !password) return next(ApiError.badRequest("Некорректный email или пароль!"))
